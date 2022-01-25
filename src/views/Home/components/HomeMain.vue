@@ -1,5 +1,5 @@
 <template>
-  <van-pull-refresh class="home-main" v-model="state.refreshing" @refresh="onRefresh">
+  <van-pull-refresh class="home-main" v-model="refreshing" @refresh="onRefresh">
   <!-- <div class="home-main"> -->
     <!-- 区域1: 轮播图 -->
     <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
