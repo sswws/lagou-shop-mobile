@@ -37,11 +37,50 @@
       <van-cell
         class="sku_window"
         is-link
+        @click="handlePopup"
       >
         <template #title>
-          <span>已选择:</span>
+          <span>已选择:{{ sku }}</span>
         </template>
       </van-cell>
+      <van-popup
+        v-model:show="specState.show"
+        position="bottom"
+        class="popup"
+      >
+        <van-cell-group>
+          <!-- 1 头部商品信息 -->
+          <van-cell class="popup-header">
+            <img :src="specDetail?.image" alt="">
+            <div class="info">
+              <p class="title" v-text="storeInfo?.store_name"></p>
+              <p class="price">¥{{ specDetail?.price }}</p>
+              <p class="stock">库存:{{ specDetail?.stock }}</p>
+            </div>
+          </van-cell>
+          <!-- 2 规格区域 -->
+          <van-cell
+            class="spec"
+            v-for="(attr,specIndex) in productAttr"
+            :key="attr.id"
+          >
+            <p v-text="attr.attr_name"></p>
+            <!-- 规则选择标签 -->
+            <span
+              class="tag"
+              :class="{ active: specState.spec[specIndex] === tag }"
+              v-for="tag in attr.attr_values"
+              :key="tag"
+              v-text="tag"
+              @click="handleTagChange(tag, specIndex)"
+            ></span>
+          </van-cell>
+          <!-- 3 数量 -->
+          <van-cell title="数量">
+            <van-stepper v-model="specState.buyCount" :max="specDetail?.stock" />
+          </van-cell>
+        </van-cell-group>
+      </van-popup>
     </van-tab>
     <van-tab title="评价" class="comment">
       <van-cell-group>
@@ -50,7 +89,12 @@
           is-link
           :title="replyInfo"
           :value="replyRate"
-          to="/"
+          :to="{
+            name: 'comment',
+            params: {
+              productId: storeInfo?.id
+            }
+          }"
         ></van-cell>
         <!-- 评价列表 -->
         <comment-item
@@ -97,7 +141,7 @@ const router = useRouter()
 
 // ---- 请求商品数据 ----
 import { getProductDetails } from '@/api/product'
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 // 接收商品 ID
 const { productId } = defineProps({
   productId: {
@@ -116,6 +160,8 @@ const initProductDetails = async () => {
     })
   }
   productDetails.value = data.data
+  // 初始化规格的初始数据
+  initSpec(data.data.productAttr)
 }
 initProductDetails(productId)
 
@@ -146,6 +192,37 @@ onBeforeRouteUpdate((to) => {
   // 重新根据最新 ID 请求商品信息
   initProductDetails(to.params.productId)
 })
+
+// ---- 规格弹出层处理 ----
+const specState = reactive({
+  show: false, // 弹出层的显示状态
+  spec: [], //选中的规格数据
+  buyCount: 0 // 购买个数
+})
+
+// 1. 规格数据处理
+const productAttr = computed(() => productDetails.value.productAttr)
+const productValue = computed(() => productDetails.value.productValue)
+// sku 数据处理
+const sku = computed(() => specState.spec.toString())
+// 根据 sku 获取对应商品信息
+const specDetail = computed(() => productValue.value?.[sku.value])
+
+const value = ref(3)
+// 显示隐藏弹出层
+const handlePopup = () => {
+  specState.show = !specState.show
+}
+
+// 初始化规格的默认选中数据
+const initSpec = (spec) => {
+  specState.spec = spec.map(item => item.attr_values[0])
+}
+
+// 规格切换处理
+const handleTagChange = (tag, specIndex) => {
+  specState.spec[specIndex] = tag
+}
 
 </script>
 
@@ -265,6 +342,73 @@ onBeforeRouteUpdate((to) => {
 
     :deep(img) {
       width: 100%;
+    }
+  }
+
+  // 弹出层
+  :deep(.van-popup) {
+    border-radius: 10px 10px 0 0;
+    max-height: 70%;
+    margin-bottom: 50px;
+
+    // 弹框头部
+    .popup-header {
+      .van-cell__value {
+        display: flex;
+
+        img {
+          width: 75px;
+          height: 75px;
+          align-self: center;
+        }
+
+        .info {
+          padding: 10px;
+
+          .title {
+            font-size: 16px;
+            font-weight: 700;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            -webkit-line-clamp: 1;
+            margin-bottom: 10px;
+          }
+
+          .price {
+            font-size: 16px;
+            color: #F2270c;
+          }
+
+          .stock {
+            font-size: 12px;
+            color: #999;
+          }
+        }
+      }
+    }
+
+    // 规格区域
+    .spec {
+      p {
+        margin-bottom: 5px;
+      }
+      .tag {
+        display: inline-block;
+        min-width: 25px;
+        padding: 0 12px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        text-align: center;
+        background: #F2F2F2;
+        margin-right: 7px;
+      }
+
+      .tag.active {
+        border-color: #F2270c;
+        color: #F2270c;
+        background-color: #FCEDEB;
+      }
     }
   }
 }

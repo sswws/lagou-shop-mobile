@@ -21,28 +21,32 @@
       <van-image
         :src="item.image"
         height="165"
-      ></van-image>
+      />
       <!-- 商品标题 -->
       <p
         class="title"
         v-text="item.store_name"
-      ></p>
+      />
       <!-- 商品价格 -->
-      <p class="price">¥{{ item.price }}</p>
-       <!-- 销量 -->
-       <p class="sales">已售{{ item.sales }}件</p>
+      <p class="price">
+        ¥{{ item.price }}
+      </p>
+      <!-- 销量 -->
+      <p class="sales">
+        已售{{ item.sales }}件
+      </p>
     </van-grid-item>
   </van-grid>
 </template>
 
 <script setup>
-  // 接收父组件传递的数据，并进行解构使用
-  const { productsData } = defineProps({
-    productsData: {
-      type: Array,
-      required: true
-    }
-  })
+// 接收父组件传递的数据，并进行解构使用
+const { productsData } = defineProps({
+  productsData: {
+    type: Array,
+    required: true
+  }
+})
 </script>
 
 <style lang="scss" scoped>
