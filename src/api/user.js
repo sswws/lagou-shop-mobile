@@ -23,6 +23,12 @@ export const loginByPassword = data => request({
 // 验证码登陆
 export const loginByCaptcha = data => request({
   method: 'POST',
-  url: '/mobile',
+  url: '/login/mobile',
   data
+})
+
+// 获取用户页信息
+export const getUserInfo = () => request({
+  method: 'GET',
+  url: '/user'
 })

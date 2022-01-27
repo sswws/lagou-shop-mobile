@@ -16,12 +16,12 @@ export const getProductDetails = productId => request({
 // 商品评价数量接口
 export const getCommentCount = productId => request({
   method: 'GET',
-  url: `/reply/config/${ productId }`
+  url: `/reply/config/${productId}`
 })
 
 // 请求不同类型的评论和数据
 export const getCommentByTag = (productId, params) => request({
   method: 'GET',
-  url: `/reply/list/${ productId }`,
+  url: `/reply/list/${productId}`,
   params
 })

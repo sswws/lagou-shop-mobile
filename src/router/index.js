@@ -21,29 +21,34 @@ const routes = [
     path: '/category-detail/:categoryId',
     name: 'category-detail',
     component: () => import('@/views/CategoryDetail/index.vue'),
-    props: true
+    props: true,
+    meta: { requireAuth: true }
   },
   {
     path: '/order-confirm',
     name: 'order-confirm',
     component: () => import('@/views/OrderConfirm/index.vue'),
-    props: true
+    props: true,
+    meta: { requireAuth: true }
   },
   {
     path: '/order',
     name: 'order',
-    component: () => import('@/views/Order/index.vue')
+    component: () => import('@/views/Order/index.vue'),
+    meta: { requireAuth: true }
   },
   {
     path: '/order-detail/:orderId',
     name: 'order-detail',
     component: () => import('@/views/OrderDetail/index.vue'),
-    props: true
+    props: true,
+    meta: { requireAuth: true }
   },
   {
     path: '/pay',
     name: 'pay',
-    component: () => import('@/views/Pay/index.vue')
+    component: () => import('@/views/Pay/index.vue'),
+    meta: { requireAuth: true }
   },
   {
     path: '/product/:productId',
@@ -65,7 +70,8 @@ const routes = [
   {
     path: '/cart',
     name: 'cart',
-    component: () => import('@/views/Cart/index.vue')
+    component: () => import('@/views/Cart/index.vue'),
+    meta: { requireAuth: true }
   },
   {
     path: '/search',
@@ -75,7 +81,8 @@ const routes = [
   {
     path: '/user',
     name: 'user',
-    component: () => import('@/views/User/index.vue')
+    component: () => import('@/views/User/index.vue'),
+    meta: { requireAuth: true }
   },
   {
     path: '/:pathMatch(.*)*',
@@ -88,6 +95,27 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes
+})
+
+import store from '@/store'
+
+// 导航守卫
+router.beforeEach(to => {
+  // 对无需登陆的页面进行放行
+  if (!to.meta.requireAuth) {
+    return true
+  }
+
+  // 校验登陆状态
+  if (!store.state.user || !window.localStorage.getItem('USER_TOKEN')) {
+    // 跳转登陆页面
+    return {
+      name: 'login',
+      query: {
+        redirect: to.fullPath
+      }
+    }
+  }
 })
 
 export default router

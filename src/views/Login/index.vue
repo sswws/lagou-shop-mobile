@@ -1,6 +1,6 @@
 <template>
   <van-form @submit="submitHandle">
-    <img class="logo" src="https://shop.fed.lagounews.com/uploads/attach/2021/06/20210609/27de97066e006228247d5948e6dc47c0.png" alt="">
+    <img class="logo" :src="state.logoUrl" alt="">
     <van-cell-group inset>
       <van-field
         v-model="state.username"
@@ -53,6 +53,12 @@
 
 <script setup>
 import { computed, reactive } from "@vue/reactivity"
+import { useStore } from 'vuex'
+const store = useStore()
+import { useRouter, useRoute } from 'vue-router'
+const router = useRouter()
+const route = useRoute()
+
 // 引入请求
 import {
   getVerifyCode,
@@ -69,15 +75,17 @@ const state = reactive({
   isPassword: computed(() => state.loginMode === 'password'),
   // 切换按钮文本处理
   changeText: computed(() => state.isPassword ? '快速登陆' : '密码登陆'),
-  username: '',
-  password: '',
+  username: '17201234567',
+  password: '111111',
   captcha: '',
   // 存储发送状态，用于控制显示效果
   isSend: false,
   // 倒计时实例
   countDown: null,
   // 根据状态设置要显示的内容
-  currentText: computed(() => state.isSend ? state.countDown.seconds : '发送验证码')
+  currentText: computed(() => state.isSend ? state.countDown.seconds : '发送验证码'),
+  // logo 地址
+  logoUrl: ''
 })
 
 // 切换登录模式处理
@@ -150,8 +158,21 @@ const submitHandle = async () => {
     }))
   }
   // 接收响应数据
-  console.log(data)
+  if (data.status !== 200) { return Toast('用户名或密码错误') }
+  // 成功时，通过 mutation 提交新的 token 信息
+  store.commit('setUser', data.data.token)
+  // 跳转页面
+  router.push(route.query.redirect ?? '/user')
 }
+
+// ---- 头像处理 ----
+import { getLogo } from '@/api/index'
+const loadLogo = async () => {
+  const { data } = await getLogo()
+  if (data.status !== 200) { return }
+  state.logoUrl = data.data.logo_url
+}
+loadLogo()
 
 </script>
 
@@ -159,11 +180,9 @@ const submitHandle = async () => {
 .van-form {
   display: flex;
   flex-direction: column;
-  // align-items: center;
 }
 .logo {
-  width: 150px;
-  height: 150px;
+  width: 100%;
   align-self: center;
   margin: 70px 0 10px;
 }
