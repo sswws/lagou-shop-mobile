@@ -75,8 +75,8 @@ const state = reactive({
   isPassword: computed(() => state.loginMode === 'password'),
   // 切换按钮文本处理
   changeText: computed(() => state.isPassword ? '快速登陆' : '密码登陆'),
-  username: '17201234567',
-  password: '111111',
+  username: '17772138808',
+  password: '123456',
   captcha: '',
   // 存储发送状态，用于控制显示效果
   isSend: false,

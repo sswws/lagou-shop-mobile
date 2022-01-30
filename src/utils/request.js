@@ -13,7 +13,7 @@ request.interceptors.request.use(config => {
   const { user } = store.state
   if (user) {
     // 设置请求头
-    config.headers.Authorization = 'Bearer' + user
+    config.headers.Authorization = 'Bearer ' + user
   }
   return config
 })
@@ -33,6 +33,7 @@ request.interceptors.response.use(config => {
       }
     })
   }
+  return config
 })
 
 export default request

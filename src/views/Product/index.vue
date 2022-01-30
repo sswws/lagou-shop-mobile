@@ -131,10 +131,19 @@
       ></div>
     </van-tab>
   </van-tabs>
+  <!-- 加入购物车 -->
+  <van-action-bar>
+    <van-action-bar-icon icon="chat-o" text="客服" color="#ee0a24" />
+    <van-action-bar-icon icon="cart-o" text="购物车" to="/cart" />
+    <van-action-bar-icon icon="star" text="已收藏" color="#ff5000" />
+    <van-action-bar-button type="warning" text="加入购物车" @click="handleCartAdd" />
+    <van-action-bar-button type="danger" text="立即购买" />
+  </van-action-bar>
 </template>
 
 <script setup>
 import CommentItem from '@/components/CommentItem.vue'
+import { Toast } from 'vant';
 
 import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 const router = useRouter()
@@ -224,6 +233,43 @@ const handleTagChange = (tag, specIndex) => {
   specState.spec[specIndex] = tag
 }
 
+// 加入购物车功能
+import { useStore } from 'vuex'
+import { addToCart } from '@/api/cart'
+
+const store = useStore()
+
+// 加入购物车按钮点击事件
+const handleCartAdd = async () => {
+  // 检测用户的登录状态，如果未登录，跳转登陆页
+  if (!store.state.user) {
+    return router.push({
+      name: 'login',
+      query: {
+        redirect: router.currentRoute.value.fullPath
+      }
+    })
+  }
+  // 检测弹出层是否显示
+  if (!specState.show) {
+    return specState.show = true
+  }
+
+  // 发送请求，将数据加入购物车
+  const { data } = await addToCart({
+    // 0 代表加入购物车操作，1 代表立即购买
+    new: 0,
+    productId,
+    uniqueId: specDetail.value.unique,
+    cartNum: specState.buyCount
+  })
+  if (data.status !== 200) { return }
+  // 隐藏弹出层
+  specState.show = false
+  // 提示成功即可
+  Toast('加入购物车成功!')
+}
+
 </script>
 
 <style lang="scss" scoped>
@@ -234,6 +280,7 @@ const handleTagChange = (tag, specIndex) => {
 
 .van-tabs {
   background-color: #F2F2F2;
+  margin-bottom: 50px;
   // 顶部 tabs 的标题部分
   :deep(.van-tabs__wrap) {
   width: 80%;
@@ -412,4 +459,10 @@ const handleTagChange = (tag, specIndex) => {
     }
   }
 }
+// 设置加入购物车的样式
+  .van-action-bar {
+    z-index: 10000;
+    width: 100%;
+  }
+
 </style>
