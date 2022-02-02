@@ -10,10 +10,10 @@ import store from '@/store'
 // 在请求拦截器中进行 token 设置
 request.interceptors.request.use(config => {
   // 获取 Token
-  const { user } = store.state
-  if (user) {
+  const { token } = store.state.user
+  if (token) {
     // 设置请求头
-    config.headers.Authorization = 'Bearer ' + user
+    config.headers.Authorization = 'Bearer ' + token
   }
   return config
 })

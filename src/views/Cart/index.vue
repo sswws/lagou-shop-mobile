@@ -17,8 +17,12 @@
   <van-empty v-else description="购物车还没有商品"></van-empty>
 
   <!-- 总计区域 -->
-  <van-submit-bar :price="3050" button-text="去结算">
-    <van-checkbox v-model="checkedAll">全选</van-checkbox>
+  <van-submit-bar
+    :price="store.getters['cart/totalPrice'] * 100"
+    button-text="去结算"
+    @submit="handleClick"
+  >
+    <van-checkbox v-model="checkedAll" checked-color="#ee0a24">全选</van-checkbox>
   </van-submit-bar>
 
   <!-- 公共底部 -->
@@ -37,7 +41,7 @@ import { getCartList } from '@/api/cart'
 
 // ---- 1 列表数据处理 ----
 // 存储数据
-const cartList = computed(() => store.state.cartList)
+const cartList = computed(() => store.state.cart.cartList)
 // 检测购物车是否为空
 const hasItem = computed(() => cartList.value.length !== 0)
 
@@ -47,15 +51,15 @@ const initCartList = async () => {
   if (data.status !== 200) { return }
 
   // 请求到新数据后，将原始数据清空，随后更新为新数据
-  store.commit('clear')
+  store.commit('cart/clear')
 
   await nextTick()
 
   // 数据处理,将处理后需要的数据通过 Vuex 进行状态管理
   data.data.valid.forEach(item => {
     // 提交给 addToCart 的数据必须符合要求
-    // (sku 的 id，checked，count，title，price，stock)
-    store.commit('addToCart', {
+    // (sku 的 id，checked，count，title，price，stock，productId)
+    store.commit('cart/addToCart', {
       id: item.id,
       checked: true,
       count: item.cart_num,
@@ -63,13 +67,34 @@ const initCartList = async () => {
       title: item.productInfo.store_name,
       price: item.truePrice,
       stock: item.trueStock,
+      productId: item.product_id
     })
   })
 
 }
 initCartList()
 
-const checkedAll = ref(true)
+// ---- 2 全选处理 ----
+const checkedAll = computed({
+  get: () => store.getters['cart/checkedAll'],
+  set (newStatus) {
+    store.commit('cart/changeAll', { checked: newStatus })
+  }
+})
+
+// ---- 3 跳转 ----
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+const handleClick = () => {
+  router.push({
+    name: 'order-confirm',
+    // cartId 指的是要结算的所有 sku 的集合，以逗号连接后传递即可
+    params: {
+      cartId: store.getters['cart/checkedItems'].map(item => item.id).toString()
+    }
+  })
+}
 </script>
 
 <style lang="scss" scoped>

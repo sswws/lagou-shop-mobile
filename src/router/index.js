@@ -107,7 +107,7 @@ router.beforeEach(to => {
   }
 
   // 校验登陆状态
-  if (!store.state.user || !window.localStorage.getItem('USER_TOKEN')) {
+  if (!store.state.user.token || !window.localStorage.getItem('USER_TOKEN')) {
     // 跳转登陆页面
     return {
       name: 'login',

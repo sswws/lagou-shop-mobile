@@ -1,17 +1,19 @@
 <template>
   <div class="cart-item">
     <!-- 状态选框 -->
-    <van-checkbox checked-color="#ee0a24"></van-checkbox>
+    <van-checkbox v-model="itemChecked" checked-color="#ee0a24"></van-checkbox>
     <!-- 右侧点击跳转 -->
-    <div class="link">
-      <img src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQQ7OgUR3dsPcY9OBlBLDM3fthn6hOFNwXsdYDSLcKGrFTEksW7" alt="">
+    <div class="link" @click="handleRouter">
+      <img :src="itemData.image" alt="">
       <div class="info">
-        <p class="title">华为HUAWEI MatePad Pro 10.8英寸2021款</p>
+        <p class="title" v-text="itemData.title"></p>
         <p class="detail">
-          <span class="price">¥3666.00</span>
+          <span class="price">¥{{ itemData.price }}</span>
           <van-stepper
-            max="10"
+            v-model="itemCount"
+            :max="itemData.stock"
             button-size="26px"
+            @click.stop
           />
         </p>
         <p class="del">
@@ -23,7 +25,48 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter()
+  
+  // 接收父组件传递的数据
+  const { itemData } = defineProps({
+    itemData: {
+      type: Object,
+      required: true
+    }
+  })
 
+  import { useStore } from 'vuex';
+  const store = useStore()
+
+  // 通过计算属性，来分别处理 v-model 的获取与设置操作
+  const itemChecked = computed({
+    get: () => itemData.checked,
+    set: newChecked => {
+      // 通过 Vuex 的手段进行状态更新
+      store.commit('cart/checkedChange', { checked: newChecked, id: itemData.id })
+    }
+  })
+
+  // 个数变化处理
+  const itemCount = computed({
+    get: () => itemData.count,
+    set (newCount) {
+      // 通过 action 进行处理
+      store.dispatch('cart/countChange', { count: newCount, id: itemData.id })
+    }
+  })
+
+  // 点击商品跳转
+  const handleRouter = () => {
+    router.push({
+      name: 'product',
+      params: {
+        productId: itemData.productId
+      }
+    })
+  }
 </script>
 
 <style lang="scss" scoped>
