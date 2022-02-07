@@ -276,7 +276,7 @@ const handlePay = async () => {
   })
   if (data.status !== 200) { return }
   // 提示并跳转
-  Toast.success('支付成功，自动跳转登录页...')
+  Toast.success('支付成功，自动跳转订单页...')
   router.push({
     name: 'order'
   })
