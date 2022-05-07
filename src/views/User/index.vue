@@ -54,7 +54,7 @@ import { computed, ref } from '@vue/reactivity'
 // 数据处理
 const userData = ref({})
 // 用户头像
-const userAvatar = computed(() => userData.value?.switchUserInfo?.[0].avatar || 'https://shop.fed.lagou.com/uploads/attach/2021/06/20210611/abe8989da91300ab559ddf619597e258.png')
+const userAvatar = computed(() => userData.value?.switchUserInfo?.[0].avatar || 'https://shop.fed.lagounews.com/uploads/attach/2021/06/20210611/abe8989da91300ab559ddf619597e258.png')
 // 用户昵称
 const username = computed(() => userData.value?.nickname || '')
 // 用户 ID
